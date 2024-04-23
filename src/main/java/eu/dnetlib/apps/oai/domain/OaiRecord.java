@@ -2,8 +2,6 @@ package eu.dnetlib.apps.oai.domain;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
 
 public class OaiRecord implements Serializable {
 
@@ -15,7 +13,7 @@ public class OaiRecord implements Serializable {
 
 	private LocalDateTime date;
 
-	private String oaiSet;
+	private String[] oaiSets;
 
 	public String getId() {
 		return this.id;
@@ -41,16 +39,12 @@ public class OaiRecord implements Serializable {
 		this.date = date;
 	}
 
-	public String getOaiSet() {
-		return this.oaiSet;
+	public String[] getOaiSets() {
+		return this.oaiSets;
 	}
 
-	public void setOaiSet(final String oaiSet) {
-		this.oaiSet = oaiSet;
-	}
-
-	public List<String> getSets() {
-		return Arrays.asList(this.oaiSet);
+	public void setOaiSets(final String[] oaiSets) {
+		this.oaiSets = oaiSets;
 	}
 
 	public boolean isDeleted() {

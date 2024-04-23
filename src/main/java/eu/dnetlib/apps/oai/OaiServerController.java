@@ -213,8 +213,10 @@ public class OaiServerController {
 		final Element headerNode = parentNode.addElement("header");
 		headerNode.addElement("identifier").setText(r.getId());
 		headerNode.addElement("datestamp").setText(DateUtils.calculate_ISO8601(r.getDate()));
-		if (StringUtils.isNotBlank(r.getOaiSet())) {
-			headerNode.addElement("setSpec").setText(r.getOaiSet());
+		if (r.getOaiSets() != null) {
+			for (final String s : r.getOaiSets()) {
+				headerNode.addElement("setSpec").setText(s);
+			}
 		}
 	}
 
