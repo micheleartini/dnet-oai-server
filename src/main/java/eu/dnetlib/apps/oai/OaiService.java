@@ -23,6 +23,7 @@ import eu.dnetlib.apps.oai.domain.OaiPage;
 import eu.dnetlib.apps.oai.domain.OaiRecord;
 import eu.dnetlib.apps.oai.domain.OaiSet;
 import eu.dnetlib.apps.oai.utils.DateUtils;
+import eu.dnetlib.apps.oai.utils.GzipUtils;
 import eu.dnetlib.apps.oai.utils.XsltTransformerFactory;
 
 @Service
@@ -136,9 +137,11 @@ public class OaiService {
 	private RowMapper<OaiRecord> rowMapper(final String metadataPrefix) {
 		final Function<String, String> mapper = prepareXsltMapper(metadataPrefix);
 		return (rs, rowNum) -> {
+			final String xml = GzipUtils.decompress(rs.getBytes("body"));
+
 			final OaiRecord r = new OaiRecord();
 			r.setId(rs.getString("id"));
-			r.setBody(mapper != null ? mapper.apply(rs.getString("body")) : rs.getString("body"));
+			r.setBody(mapper != null ? mapper.apply(xml) : xml);
 			r.setDate(Instant.ofEpochMilli(rs.getLong("date"))
 				.atZone(ZoneId.systemDefault())
 				.toLocalDateTime());
