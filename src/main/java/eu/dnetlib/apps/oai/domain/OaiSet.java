@@ -12,8 +12,6 @@ public class OaiSet implements Serializable {
 
 	private String description;
 
-	private String dsId;
-
 	public String getSetSpec() {
 		return this.setSpec;
 	}
@@ -36,18 +34,6 @@ public class OaiSet implements Serializable {
 
 	public void setDescription(final String description) {
 		this.description = description;
-	}
-
-	public String getDsId() {
-		return this.dsId;
-	}
-
-	public void setDsId(final String dsId) {
-		this.dsId = dsId;
-	}
-
-	public static long getSerialversionuid() {
-		return serialVersionUID;
 	}
 
 }

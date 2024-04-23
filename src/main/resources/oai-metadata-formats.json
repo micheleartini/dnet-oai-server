@@ -1,1 +1,8 @@
-[]
+[
+	{
+		"metadataPrefix"   : "oai_dc",
+		"metadataSchema"   : "http://www.openarchives.org/OAI/2.0/oai_dc.xsd",
+		"metadataNamespace": "http://www.openarchives.org/OAI/2.0/oai_dc/",
+		"xsltPath"         : "xslt/raw_to_dc.xslt"
+	}
+]

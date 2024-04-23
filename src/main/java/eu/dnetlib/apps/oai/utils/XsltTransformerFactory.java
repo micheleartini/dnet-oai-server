@@ -1,5 +1,6 @@
 package eu.dnetlib.apps.oai.utils;
 
+import java.io.FileInputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -26,7 +27,7 @@ import net.sf.saxon.s9api.XsltTransformer;
 @Component
 public class XsltTransformerFactory {
 
-	public Function<String, String> getTransformerByXSLT(final String xsltText, final Map<String, Object> params) {
+	public Function<String, String> getTransformer(final String xsltPath, final Map<String, Object> params) {
 		final Processor processor = new Processor(false);
 
 		final List<XmlProcessingError> errorList = new ArrayList<>();
@@ -35,8 +36,8 @@ public class XsltTransformerFactory {
 		comp.setErrorList(errorList);
 		params.forEach((k, v) -> comp.setParameter(new QName(k), XdmAtomicValue.makeAtomicValue(v)));
 
-		try {
-			final XsltExecutable xslt = comp.compile(new StreamSource(IOUtils.toInputStream(xsltText, StandardCharsets.UTF_8)));
+		try (FileInputStream fileInputStream = new FileInputStream(xsltPath)) {
+			final XsltExecutable xslt = comp.compile(new StreamSource(fileInputStream));
 			return xml -> {
 				try {
 					final XdmNode source = processor

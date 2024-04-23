@@ -12,7 +12,7 @@ public class OaiMetadataFormat implements Serializable {
 
 	private String metadataNamespace;
 
-	private String xslt;
+	private String xsltPath;
 
 	public String getMetadataPrefix() {
 		return this.metadataPrefix;
@@ -38,12 +38,12 @@ public class OaiMetadataFormat implements Serializable {
 		this.metadataNamespace = metadataNamespace;
 	}
 
-	public String getXslt() {
-		return this.xslt;
+	public String getXsltPath() {
+		return this.xsltPath;
 	}
 
-	public void setXslt(final String xslt) {
-		this.xslt = xslt;
+	public void setXslt(final String xsltPath) {
+		this.xsltPath = xsltPath;
 	}
 
 }

@@ -165,9 +165,9 @@ public class OaiService {
 		return listMetadataFormats()
 			.stream()
 			.filter(f -> f.getMetadataPrefix().equalsIgnoreCase(metadataPrefix))
-			.map(OaiMetadataFormat::getXslt)
+			.map(OaiMetadataFormat::getXsltPath)
+			.map(xsltPath -> this.xsltTransformerFactory.getTransformer(xsltPath, null))
 			.findFirst()
-			.map(xslt -> this.xsltTransformerFactory.getTransformerByXSLT(xslt, null))
 			.orElseThrow(() -> new RuntimeException("Invalid metadata format: " + metadataPrefix));
 	}
 
