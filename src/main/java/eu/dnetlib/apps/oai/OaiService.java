@@ -39,12 +39,8 @@ public class OaiService {
 	private static final String RES_TOKEN_SEPARATOR = "§";
 
 	public OaiRecord getRecord(final String id, final String metadataPrefix) {
-
-		// TODO
-		final String sql = "";
-
-		return jdbcTemplate.queryForObject(sql, rowMapper(metadataPrefix));
-
+		final String sql = "SELECT * FROM oai_data WHERE id = ?";
+		return jdbcTemplate.queryForObject(sql, rowMapper(metadataPrefix), id);
 	}
 
 	public OaiPage listRecords(final String metadataPrefix, final String set, final String from, final String until) {
@@ -78,10 +74,11 @@ public class OaiService {
 
 		final OaiPage page = new OaiPage();
 
-		// TODO: implement the 2 queries for total and for records
-		final List<OaiRecord> list = null;
-		final long total = -1;
-		// END TODO
+		final String sql = "SELECT * FROM oai_data WHERE date >= ? AND date <= ? ORDER BY id LIMIT ? OFFSET ?";
+		final String sqlTotal = "SELECT count(*) FROM oai_data WHERE date >= ? AND date <= ?";
+
+		final List<OaiRecord> list = jdbcTemplate.query(sql, rowMapper, fromDate, untilDate, pageSize, cursor);
+		final long total = jdbcTemplate.queryForObject(sqlTotal, Long.class, fromDate, untilDate);
 
 		page.setList(list);
 
