@@ -43,25 +43,25 @@ public class OaiService {
 		return jdbcTemplate.queryForObject(sql, rowMapper(metadataPrefix), id);
 	}
 
-	public OaiPage listRecords(final String metadataPrefix, final String set, final String from, final String until) {
-		return listRecords(metadataPrefix, set, from, until, 0, PAGE_SIZE);
+	public OaiPage listRecords(final String metadataPrefix, final String setSpec, final String from, final String until) {
+		return listRecords(metadataPrefix, setSpec, from, until, 0, PAGE_SIZE);
 	}
 
 	public OaiPage listRecords(final String resumptionToken) {
 		final String[] arr = new String(Base64.decodeBase64(resumptionToken)).split(RES_TOKEN_SEPARATOR);
 		if (arr.length != 6) { throw new RuntimeException("INVALID RES TOKEN"); }
 		final String metadataPrefix = arr[0];
-		final String setName = arr[1];
+		final String setSpec = arr[1];
 		final String from = arr[2];
 		final String until = arr[3];
 		final long cursor = Long.parseLong(arr[4]);
 		final long pageSize = Long.parseLong(arr[5]);
 
-		return listRecords(metadataPrefix, setName, from, until, cursor, pageSize);
+		return listRecords(metadataPrefix, setSpec, from, until, cursor, pageSize);
 	}
 
 	private OaiPage listRecords(final String metadataPrefix,
-		final String setName,
+		final String setSpec,
 		final String from,
 		final String until,
 		final long cursor,
@@ -74,17 +74,27 @@ public class OaiService {
 
 		final OaiPage page = new OaiPage();
 
-		final String sql = "SELECT * FROM oai_data WHERE date >= ? AND date <= ? ORDER BY id LIMIT ? OFFSET ?";
-		final String sqlTotal = "SELECT count(*) FROM oai_data WHERE date >= ? AND date <= ?";
+		long total;
+		final List<OaiRecord> list;
+		if (StringUtils.isNotBlank(setSpec)) {
+			final String sql = "SELECT * FROM oai_data WHERE ? = ANY(sets) AND date >= ? AND date <= ? ORDER BY id LIMIT ? OFFSET ?";
+			final String sqlTotal = "SELECT count(*) FROM oai_data WHERE ? = ANY(sets) AND date >= ? AND date <= ?";
 
-		final List<OaiRecord> list = jdbcTemplate.query(sql, rowMapper, fromDate, untilDate, pageSize, cursor);
-		final long total = jdbcTemplate.queryForObject(sqlTotal, Long.class, fromDate, untilDate);
+			list = jdbcTemplate.query(sql, rowMapper, fromDate, setSpec, untilDate, pageSize, cursor);
+			total = jdbcTemplate.queryForObject(sqlTotal, Long.class, setSpec, fromDate, untilDate);
+		} else {
+			final String sql = "SELECT * FROM oai_data WHERE date >= ? AND date <= ? ORDER BY id LIMIT ? OFFSET ?";
+			final String sqlTotal = "SELECT count(*) FROM oai_data WHERE date >= ? AND date <= ?";
+
+			list = jdbcTemplate.query(sql, rowMapper, fromDate, untilDate, pageSize, cursor);
+			total = jdbcTemplate.queryForObject(sqlTotal, Long.class, fromDate, untilDate);
+		}
 
 		page.setList(list);
 
 		if (cursor + pageSize < total) {
 			final String nextToken = Base64.encodeBase64URLSafeString(StringUtils
-				.join(Arrays.asList(metadataPrefix, setName, from, until, Long.toString(cursor + pageSize), Long.toString(pageSize)), RES_TOKEN_SEPARATOR)
+				.join(Arrays.asList(metadataPrefix, setSpec, from, until, Long.toString(cursor + pageSize), Long.toString(pageSize)), RES_TOKEN_SEPARATOR)
 				.getBytes());
 
 			page.setCursor(cursor);
