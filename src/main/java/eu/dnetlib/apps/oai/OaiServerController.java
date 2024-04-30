@@ -1,12 +1,10 @@
 package eu.dnetlib.apps.oai;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -18,9 +16,11 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
-import org.dom4j.io.SAXReader;
+import org.dom4j.Namespace;
+import org.dom4j.QName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import eu.dnetlib.apps.oai.domain.OaiError;
@@ -56,6 +56,15 @@ public class OaiServerController {
 			IOUtils.write(oaiResponse(params), out, StandardCharsets.UTF_8);
 		}
 
+	}
+
+	@ExceptionHandler(Throwable.class)
+	public void handleError(final HttpServletRequest req, final HttpServletResponse response, final Exception ex) throws IOException {
+		log.error("Request: " + req.getRequestURL() + " raised " + ex.getMessage(), ex);
+
+		try (final OutputStream out = response.getOutputStream()) {
+			IOUtils.write(prepareErrorResponseXml(OaiError.badArgument), out, StandardCharsets.UTF_8);
+		}
 	}
 
 	private String oaiResponse(final Map<String, String> params) {
@@ -98,7 +107,7 @@ public class OaiServerController {
 		final Document doc = genericOaiResponse(OaiVerb.LIST_METADATA_FORMATS.getVerb());
 		final Element dataNode = doc.getRootElement().addElement(OaiVerb.LIST_METADATA_FORMATS.getVerb());
 
-		final List<OaiMetadataFormat> formats =
+		final OaiMetadataFormat[] formats =
 			StringUtils.isBlank(id) ? this.oaiService.listMetadataFormats(id) : this.oaiService.listMetadataFormats();
 
 		for (final OaiMetadataFormat oaiFormat : formats) {
@@ -260,17 +269,24 @@ public class OaiServerController {
 	}
 
 	private Document genericOaiResponse(final String verb) {
-		try (InputStream is = getClass().getResourceAsStream("/oai/oai_response.xml")) {
-			final Document doc = new SAXReader().read(is);
-			doc.selectSingleNode("//*[local-name() = 'responseDate']").setText(DateUtils.now_ISO8601());
-			doc.selectSingleNode("//*[local-name() = 'request']").setText(oaiConf.getBaseUrl());
-			if (StringUtils.isNotBlank(verb)) {
-				doc.selectSingleNode("//*[local-name() = 'request']/@verb").setText(verb);
-			}
-			return doc;
-		} catch (final DocumentException | IOException e) {
-			throw new RuntimeException("Error generataing oai response", e);
+
+		final Document doc = DocumentHelper.createDocument();
+
+		final Element root = doc.addElement("OAI-PMH", "http://www.openarchives.org/OAI/2.0/");
+
+		root.addAttribute(new QName("schemaLocation", new Namespace("xsi",
+			"http://www.w3.org/2001/XMLSchema-instance")), "http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd");
+
+		root.addElement("responseDate").setText(DateUtils.now_ISO8601());
+
+		final Element reqNode = root.addElement("request");
+		reqNode.setText(oaiConf.getBaseUrl());
+		if (StringUtils.isNotBlank(verb)) {
+			reqNode.addAttribute("verb", verb);
 		}
+
+		return doc;
+
 	}
 
 	private String prepareErrorResponseXml(final OaiError error) {

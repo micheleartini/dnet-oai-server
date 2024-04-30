@@ -116,19 +116,19 @@ public class OaiService {
 
 	public OaiSet[] listSets() {
 		try {
-			return new ObjectMapper().readerForArrayOf(OaiSet.class).readValue(getClass().getResourceAsStream("oai-sets.xml"));
+			return new ObjectMapper().readerForArrayOf(OaiSet.class).readValue(getClass().getResourceAsStream("/oai-sets.json"));
 		} catch (final IOException e) {
 			throw new RuntimeException("Error obtaining oai sets");
 		}
 	}
 
-	public List<OaiMetadataFormat> listMetadataFormats(final String id) {
+	public OaiMetadataFormat[] listMetadataFormats(final String id) {
 		return listMetadataFormats();
 	}
 
-	public List<OaiMetadataFormat> listMetadataFormats() {
+	public OaiMetadataFormat[] listMetadataFormats() {
 		try {
-			return new ObjectMapper().readerForArrayOf(OaiMetadataFormat.class).readValue(getClass().getResourceAsStream("oai-metadata-formats.xml"));
+			return new ObjectMapper().readerForArrayOf(OaiMetadataFormat.class).readValue(getClass().getResourceAsStream("/oai-metadata-formats.json"));
 		} catch (final IOException e) {
 			throw new RuntimeException("Error obtaining oai sets");
 		}
@@ -165,8 +165,7 @@ public class OaiService {
 	}
 
 	private Function<String, String> prepareXsltMapper(final String metadataPrefix) {
-		return listMetadataFormats()
-			.stream()
+		return Arrays.stream(listMetadataFormats())
 			.filter(f -> f.getMetadataPrefix().equalsIgnoreCase(metadataPrefix))
 			.map(OaiMetadataFormat::getXsltPath)
 			.map(xsltPath -> this.xsltTransformerFactory.getTransformer(xsltPath, null))
