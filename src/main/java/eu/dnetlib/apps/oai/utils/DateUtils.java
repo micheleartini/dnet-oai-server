@@ -9,7 +9,7 @@ import java.util.TimeZone;
 public class DateUtils {
 
 	public static LocalDate parseDate(final String s) {
-		return LocalDate.parse(s, DateTimeFormatter.ISO_DATE);
+		return LocalDate.parse(s, DateTimeFormatter.ISO_LOCAL_DATE);
 	}
 
 	public static String calculate_ISO8601(final LocalDateTime time) {
