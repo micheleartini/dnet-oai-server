@@ -1,6 +1,6 @@
 package eu.dnetlib.apps.oai.utils;
 
-import java.io.FileInputStream;
+import java.io.InputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -34,9 +34,11 @@ public class XsltTransformerFactory {
 
 		final XsltCompiler comp = processor.newXsltCompiler();
 		comp.setErrorList(errorList);
-		params.forEach((k, v) -> comp.setParameter(new QName(k), XdmAtomicValue.makeAtomicValue(v)));
+		if (params != null) {
+			params.forEach((k, v) -> comp.setParameter(new QName(k), XdmAtomicValue.makeAtomicValue(v)));
+		}
 
-		try (FileInputStream fileInputStream = new FileInputStream(xsltPath)) {
+		try (InputStream fileInputStream = getClass().getResourceAsStream(xsltPath)) {
 			final XsltExecutable xslt = comp.compile(new StreamSource(fileInputStream));
 			return xml -> {
 				try {
