@@ -29,6 +29,7 @@ import eu.dnetlib.apps.oai.domain.OaiPage;
 import eu.dnetlib.apps.oai.domain.OaiRecord;
 import eu.dnetlib.apps.oai.domain.OaiSet;
 import eu.dnetlib.apps.oai.domain.OaiVerb;
+import eu.dnetlib.apps.oai.domain.ResumptionToken;
 import eu.dnetlib.apps.oai.utils.DateUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -156,7 +157,7 @@ public class OaiServerController {
 		if (params.containsKey("resumptionToken")) {
 			final String resumptionToken = params.remove("resumptionToken");
 			if (!params.isEmpty()) { return prepareErrorResponseXml(OaiError.badArgument); }
-			page = this.oaiService.listRecords(resumptionToken);
+			page = this.oaiService.listRecords(ResumptionToken.fromString(resumptionToken), oaiConf.getPageSize());
 		} else {
 
 			final String metadataPrefix = params.remove("metadataPrefix");
@@ -196,7 +197,7 @@ public class OaiServerController {
 		if (params.containsKey("resumptionToken")) {
 			final String resumptionToken = params.remove("resumptionToken");
 			if (!params.isEmpty()) { return prepareErrorResponseXml(OaiError.badArgument); }
-			page = this.oaiService.listRecords(resumptionToken);
+			page = this.oaiService.listRecords(ResumptionToken.fromString(resumptionToken), oaiConf.getPageSize());
 		} else {
 			final String metadataPrefix = params.remove("metadataPrefix");
 			final String from = params.remove("from");
@@ -230,11 +231,11 @@ public class OaiServerController {
 	}
 
 	private void insertResumptionToken(final Element parentNode, final OaiPage page) {
-		if (StringUtils.isNotBlank(page.getResumptionToken())) {
+		if (page.getResumptionToken() != null) {
 			final Element tokenNode = parentNode.addElement("resumptionToken");
 			tokenNode.addAttribute("completeListSize", Long.toString(page.getTotal()));
 			tokenNode.addAttribute("cursor", Long.toString(page.getCursor()));
-			tokenNode.setText(page.getResumptionToken());
+			tokenNode.setText(page.getResumptionToken().asString());
 		}
 	}
 

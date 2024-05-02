@@ -13,7 +13,7 @@ public class OaiPage implements Serializable {
 
 	private long cursor;
 
-	private String resumptionToken;
+	private ResumptionToken resumptionToken;
 
 	public List<OaiRecord> getList() {
 		return list;
@@ -39,11 +39,11 @@ public class OaiPage implements Serializable {
 		this.cursor = cursor;
 	}
 
-	public String getResumptionToken() {
+	public ResumptionToken getResumptionToken() {
 		return resumptionToken;
 	}
 
-	public void setResumptionToken(final String resumptionToken) {
+	public void setResumptionToken(final ResumptionToken resumptionToken) {
 		this.resumptionToken = resumptionToken;
 	}
 

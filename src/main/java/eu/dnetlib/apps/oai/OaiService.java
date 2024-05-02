@@ -3,13 +3,11 @@ package eu.dnetlib.apps.oai;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -22,6 +20,7 @@ import eu.dnetlib.apps.oai.domain.OaiMetadataFormat;
 import eu.dnetlib.apps.oai.domain.OaiPage;
 import eu.dnetlib.apps.oai.domain.OaiRecord;
 import eu.dnetlib.apps.oai.domain.OaiSet;
+import eu.dnetlib.apps.oai.domain.ResumptionToken;
 import eu.dnetlib.apps.oai.utils.DateUtils;
 import eu.dnetlib.apps.oai.utils.GzipUtils;
 import eu.dnetlib.apps.oai.utils.XsltTransformerFactory;
@@ -35,8 +34,6 @@ public class OaiService {
 	@Autowired
 	private XsltTransformerFactory xsltTransformerFactory;
 
-	private static final String RES_TOKEN_SEPARATOR = "§";
-
 	public OaiRecord getRecord(final String id, final String metadataPrefix) {
 		final String sql = "SELECT * FROM oai_data WHERE id = ?";
 		return jdbcTemplate.queryForObject(sql, rowMapper(metadataPrefix), id);
@@ -46,16 +43,12 @@ public class OaiService {
 		return listRecords(metadataPrefix, setSpec, from, until, 0, pageSize);
 	}
 
-	public OaiPage listRecords(final String resumptionToken) {
-		final String[] arr = new String(Base64.decodeBase64(resumptionToken)).split(RES_TOKEN_SEPARATOR);
-		if (arr.length != 6) { throw new RuntimeException("INVALID RES TOKEN"); }
-		final String metadataPrefix = arr[0];
-		final String setSpec = arr[1];
-		final String from = arr[2];
-		final String until = arr[3];
-		final long cursor = Long.parseLong(arr[4]);
-		final long pageSize = Long.parseLong(arr[5]);
-
+	public OaiPage listRecords(final ResumptionToken resumptionToken, final long pageSize) {
+		final String metadataPrefix = resumptionToken.getMetadataPrefix();
+		final String setSpec = resumptionToken.getSetSpec();
+		final String from = resumptionToken.getFrom();
+		final String until = resumptionToken.getUntil();
+		final long cursor = resumptionToken.getCursor();
 		return listRecords(metadataPrefix, setSpec, from, until, cursor, pageSize);
 	}
 
@@ -92,13 +85,9 @@ public class OaiService {
 		page.setList(list);
 
 		if (cursor + pageSize < total) {
-			final String nextToken = Base64.encodeBase64URLSafeString(StringUtils
-				.join(Arrays.asList(metadataPrefix, setSpec, from, until, Long.toString(cursor + pageSize), Long.toString(pageSize)), RES_TOKEN_SEPARATOR)
-				.getBytes());
-
 			page.setCursor(cursor);
 			page.setTotal(total);
-			page.setResumptionToken(nextToken);
+			page.setResumptionToken(ResumptionToken.newInstance(metadataPrefix, setSpec, from, until, cursor + pageSize));
 		}
 
 		return page;
@@ -147,19 +136,6 @@ public class OaiService {
 
 			return r;
 		};
-	}
-
-	public String nextResumptionToken(final String metadataPrefix,
-		final String set,
-		final LocalDateTime from,
-		final LocalDateTime until,
-		final long nextCursor,
-		final long pageSize) {
-		final List<String> list = Arrays.asList(metadataPrefix, set, from.toString(), until.toString(), Long.toString(nextCursor), Long.toString(pageSize));
-
-		final String s = StringUtils.join(list, RES_TOKEN_SEPARATOR);
-
-		return Base64.encodeBase64URLSafeString(s.getBytes());
 	}
 
 	private Function<String, String> prepareXsltMapper(final String metadataPrefix) {
