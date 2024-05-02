@@ -15,6 +15,8 @@ public class OaiServerConf {
 
 	private String adminEmail;
 
+	private long pageSize;
+
 	public String getBaseUrl() {
 		return baseUrl;
 	}
@@ -37,6 +39,14 @@ public class OaiServerConf {
 
 	public void setAdminEmail(final String adminEmail) {
 		this.adminEmail = adminEmail;
+	}
+
+	public long getPageSize() {
+		return pageSize;
+	}
+
+	public void setPageSize(final long pageSize) {
+		this.pageSize = pageSize;
 	}
 
 }

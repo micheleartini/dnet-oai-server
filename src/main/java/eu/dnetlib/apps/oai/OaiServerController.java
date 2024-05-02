@@ -165,7 +165,7 @@ public class OaiServerController {
 			final String set = params.remove("set");
 
 			if (!StringUtils.isNotBlank(metadataPrefix) || !this.oaiService.verifySet(set)) { return prepareErrorResponseXml(OaiError.badArgument); }
-			page = this.oaiService.listRecords(metadataPrefix, set, from, until);
+			page = this.oaiService.listRecords(metadataPrefix, set, from, until, oaiConf.getPageSize());
 		}
 
 		final Document doc = genericOaiResponse(OaiVerb.LIST_RECORDS.getVerb());
@@ -205,7 +205,7 @@ public class OaiServerController {
 
 			if (!StringUtils.isNotBlank(metadataPrefix) || !this.oaiService.verifySet(set)) { return prepareErrorResponseXml(OaiError.badArgument); }
 
-			page = this.oaiService.listRecords(metadataPrefix, set, from, until);
+			page = this.oaiService.listRecords(metadataPrefix, set, from, until, oaiConf.getPageSize());
 		}
 
 		final Document doc = genericOaiResponse(OaiVerb.LIST_IDENTIFIERS.getVerb());

@@ -35,8 +35,6 @@ public class OaiService {
 	@Autowired
 	private XsltTransformerFactory xsltTransformerFactory;
 
-	private static final long PAGE_SIZE = 100;
-
 	private static final String RES_TOKEN_SEPARATOR = "§";
 
 	public OaiRecord getRecord(final String id, final String metadataPrefix) {
@@ -44,8 +42,8 @@ public class OaiService {
 		return jdbcTemplate.queryForObject(sql, rowMapper(metadataPrefix), id);
 	}
 
-	public OaiPage listRecords(final String metadataPrefix, final String setSpec, final String from, final String until) {
-		return listRecords(metadataPrefix, setSpec, from, until, 0, PAGE_SIZE);
+	public OaiPage listRecords(final String metadataPrefix, final String setSpec, final String from, final String until, final long pageSize) {
+		return listRecords(metadataPrefix, setSpec, from, until, 0, pageSize);
 	}
 
 	public OaiPage listRecords(final String resumptionToken) {
