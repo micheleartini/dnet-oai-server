@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import io.micrometer.common.util.StringUtils;
 
-class DateUtilsTest {
+public class DateUtilsTest {
 
 	@BeforeEach
 	void setUp() throws Exception {}

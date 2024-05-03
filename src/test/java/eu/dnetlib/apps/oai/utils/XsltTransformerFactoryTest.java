@@ -10,7 +10,7 @@ import org.dom4j.DocumentHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class XsltTransformerFactoryTest {
+public class XsltTransformerFactoryTest {
 
 	private XsltTransformerFactory factory;
 
