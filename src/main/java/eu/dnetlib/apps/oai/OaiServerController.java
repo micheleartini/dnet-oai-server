@@ -182,11 +182,13 @@ public class OaiServerController {
 	private void insertSingleRecord(final Element parentNode, final OaiRecord record) {
 		final Element recordNode = parentNode.addElement("record");
 		insertRecordHeader(recordNode, record);
-		try {
-			final Document doc2 = DocumentHelper.parseText(record.getBody());
-			recordNode.addElement("metadata").add(doc2.getRootElement());
-		} catch (final DocumentException e) {
-			log.warn("Error parsing record: " + record.getBody());
+		if (!record.isDeleted()) {
+			try {
+				final Document doc2 = DocumentHelper.parseText(record.getBody());
+				recordNode.addElement("metadata").add(doc2.getRootElement());
+			} catch (final DocumentException e) {
+				log.warn("Error parsing record: " + record.getBody());
+			}
 		}
 	}
 
@@ -221,12 +223,17 @@ public class OaiServerController {
 
 	private void insertRecordHeader(final Element parentNode, final OaiRecord r) {
 		final Element headerNode = parentNode.addElement("header");
+
 		headerNode.addElement("identifier").setText(r.getId());
 		headerNode.addElement("datestamp").setText(DateUtils.calculate_ISO8601(r.getDate()));
 		if (r.getOaiSets() != null) {
 			for (final String s : r.getOaiSets()) {
 				headerNode.addElement("setSpec").setText(s);
 			}
+		}
+
+		if (r.isDeleted()) {
+			headerNode.addAttribute("status", "deleted");
 		}
 	}
 

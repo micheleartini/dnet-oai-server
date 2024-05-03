@@ -3,6 +3,8 @@ package eu.dnetlib.apps.oai.domain;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+import org.apache.commons.lang3.StringUtils;
+
 public class OaiRecord implements Serializable {
 
 	private static final long serialVersionUID = -8383104201424481929L;
@@ -48,6 +50,6 @@ public class OaiRecord implements Serializable {
 	}
 
 	public boolean isDeleted() {
-		return false;
+		return StringUtils.isBlank(body);
 	}
 }

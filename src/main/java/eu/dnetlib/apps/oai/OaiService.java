@@ -124,11 +124,18 @@ public class OaiService {
 	private RowMapper<OaiRecord> rowMapper(final String metadataPrefix) {
 		final Function<String, String> mapper = prepareXsltMapper(metadataPrefix);
 		return (rs, rowNum) -> {
-			final String xml = GzipUtils.decompress(rs.getBytes("body"));
 
 			final OaiRecord r = new OaiRecord();
 			r.setId(rs.getString("id"));
-			r.setBody(mapper != null ? mapper.apply(xml) : xml);
+
+			final byte[] bb = rs.getBytes("body");
+			if (bb != null && bb.length > 0) {
+				final String xml = GzipUtils.decompress(bb);
+				if (StringUtils.isNotBlank(xml)) {
+					r.setBody(mapper != null ? mapper.apply(xml) : xml);
+				}
+			}
+
 			r.setDate(Instant.ofEpochMilli(rs.getLong("date"))
 				.atZone(ZoneId.systemDefault())
 				.toLocalDateTime());
