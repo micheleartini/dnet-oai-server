@@ -3,6 +3,12 @@
 		"metadataPrefix"   : "oai_dc",
 		"metadataSchema"   : "http://www.openarchives.org/OAI/2.0/oai_dc.xsd",
 		"metadataNamespace": "http://www.openarchives.org/OAI/2.0/oai_dc/",
-		"xsltPath"         : "xslt/raw_to_dc.xslt"
+		"xsltPath"         : "/xslt/oaf_to_dc.xslt"
+	},
+	{
+		"metadataPrefix"   : "oaf",
+		"metadataSchema"   : "https://www.openaire.eu/schema/1.0/oaf-1.0.xsd",
+		"metadataNamespace": "http://namespace.openaire.eu/oaf",
+		"xsltPath"         : "/xslt/identity.xslt"
 	}
 ]

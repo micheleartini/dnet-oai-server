@@ -136,9 +136,10 @@ public class OaiService {
 				}
 			}
 
-			r.setDate(Instant.ofEpochMilli(rs.getLong("date"))
+			r.setDate(Instant.ofEpochMilli(rs.getTimestamp("date").getTime())
 				.atZone(ZoneId.systemDefault())
 				.toLocalDateTime());
+
 			r.setOaiSets((String[]) rs.getArray("sets").getArray());
 
 			return r;
