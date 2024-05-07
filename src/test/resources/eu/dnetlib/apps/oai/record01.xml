@@ -1,5 +1,4 @@
-
-<result
+<result xmlns="http://namespace.openaire.eu/oaf "
 	schemaLocation="http://namespace.openaire.eu/oaf https://www.openaire.eu/schema/1.0/oaf-1.0.xsd">
 	<collectedfrom
 		name="Waterford Institute of Technology - Open Access Repository"
