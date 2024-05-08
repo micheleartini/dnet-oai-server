@@ -9,11 +9,8 @@
 	<xsl:variable name="openaireNamespace" select="string('oai:dnet:')" />
 	
 	
-	<xsl:template match="/oaf:result">
-		<oai_dc:dc
-			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-			xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
-
+	<xsl:template match="/oaf:entity/oaf:result">
+		<oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
 
 			<!--
 			<dc:title>Studies of Unicorn Behaviour</dc:title>
@@ -39,24 +36,119 @@
             <dc:type>info:eu-repo/semantics/article</dc:type>
 			-->
 
-			<!-- Title -->
-			<xsl:for-each select="./oaf:title">
+			<!-- dc:title -->
+			<xsl:for-each select="./title[@classid='main title']">
 				<dc:title>
 					<xsl:value-of select="normalize-space(.)" />
 				</dc:title>
 			</xsl:for-each>
 			
-			<!-- identifier -->
-			<!-- creator -->
-			<!-- description -->
-			<!-- subject: info:eu-repo/classification/ddc/590< -->
-			<!-- subject: free keywords -->
-			<!-- relation: projects -->
-			<!-- relation: altIdentifiers -->
-			<!-- relation: reference -->
-			<!-- relation: dataset -->
-			<!-- rights: info:eu-repo/semantics/openAccess -->
-			<xsl:for-each select="./oaf:bestaccessright">
+			<!-- dc:creator -->
+			<xsl:for-each select="./creator">
+				<xsl:sort select="@rank" />
+				<dc:creator>
+					<xsl:value-of select="normalize-space(.)" />
+				</dc:creator>
+			</xsl:for-each>
+			
+			<!-- dc:subject: free keywords -->
+			<xsl:for-each select="./subject[@classname='keyword']">
+				<dc:subject>
+					<xsl:value-of select="normalize-space(./text())" />
+				</dc:subject>
+			</xsl:for-each>
+
+			<!-- dc:subject: with classification -->
+			<xsl:for-each select="./subject[not(@classname='keyword') and @classid != '']">
+				<dc:subject>
+					<xsl:value-of select="concat('info:eu-repo/classification/', @classid, '/', normalize-space(./text()))" />
+				</dc:subject>
+			</xsl:for-each>
+			
+			<!-- dc:description -->
+			<xsl:for-each select="./description">
+				<dc:description>
+					<xsl:value-of select="normalize-space(.)" />
+				</dc:description>
+			</xsl:for-each>
+				
+			<!-- dc:publisher -->
+			<xsl:for-each select="./publisher">
+				<dc:publisher>
+					<xsl:value-of select="normalize-space(.)" />
+				</dc:publisher>
+			</xsl:for-each>
+			
+			<!-- dc:contributor -->
+			
+			<!-- dc:date -->
+			<xsl:for-each select="./dateofacceptance">
+				<dc:date>
+					<xsl:value-of select="normalize-space(.)" />
+				</dc:date>
+			</xsl:for-each>
+			<xsl:for-each select="./embargoenddate">
+				<dc:date>
+					<xsl:value-of select="concat('info:eu-repo/date/embargoEnd/', normalize-space(.))" />
+				</dc:date>
+			</xsl:for-each>
+			
+			<!-- dc:type -->
+			
+			<!-- dc:format -->
+			<xsl:for-each select="./format">
+				<dc:format>
+					<xsl:value-of select="normalize-space(.)" />
+				</dc:format>
+			</xsl:for-each>
+			
+			<!-- dc:identifier -->
+			<xsl:for-each select="./children/instance/webresource/url">
+				<dc:identifier>
+					<xsl:value-of select="normalize-space(.)" />
+				</dc:identifier>
+			</xsl:for-each>
+			
+			<!-- dc:source -->
+			<xsl:for-each select="./source">
+				<dc:source>
+					<xsl:value-of select="normalize-space(.)" />
+				</dc:source>
+			</xsl:for-each>
+			
+			<!-- dc:language -->
+			<xsl:for-each select="./language">
+				<dc:language>
+					<xsl:value-of select="./@classid" />
+				</dc:language>
+			</xsl:for-each>
+			
+			<!-- dc:coverage -->
+			
+			<!-- dc:relation: projects -->
+			<xsl:for-each select=".//rel[./to/@class='isProducedBy']">
+				<xsl:for-each select="./funding/funding_level_0">
+					<xsl:variable name="funder" select="../funder/@shortname" />
+					<xsl:variable name="fundingProgramme" select="@name" />
+					<xsl:variable name="jurisdiction" select="../funder/@jurisdiction" />
+					<xsl:variable name="title" select="../../title" />
+					<xsl:variable name="acronym" select="../../acronym" />
+					<xsl:variable name="code" select="../../code" />
+					<dc:relation>
+						<xsl:value-of
+							select="concat('info:eu-repo/grantAgreement/', $funder, '/', $fundingProgramme, '/', $code, '/', $jurisdiction, '/' , $title, '/', $acronym)" />
+					</dc:relation>
+				</xsl:for-each>
+			</xsl:for-each>
+			
+			<!-- dc:relation: altIdentifiers -->
+			
+			<!-- dc:relation: reference -->
+			
+			<!-- dc:relation: dataset -->
+			
+			<!-- dc:rights -->
+			<xsl:for-each select="./bestaccessright">
 				<dc:rights>
 					<xsl:choose>
 						<xsl:when test="@classid='OPEN'">info:eu-repo/semantics/openAccess</xsl:when>
@@ -67,22 +159,6 @@
 					</xsl:choose>
 				</dc:rights>
 			</xsl:for-each>
-			
-			
-			
-			<!-- rights: other vocabularies -->
-			<!-- source -->
-			<!-- publisher -->
-			<!-- date -->
-			<!-- type -->
-
-
-
-
-
-
-
-
 		</oai_dc:dc>
 	</xsl:template>
 
@@ -125,30 +201,9 @@
 		<funding_level_2>FP7::SP2::ERC</funding_level_2> </funding> </rel> The funding 
 		program is funding_level_0. The funder must be inferred from the contract 
 		type - until the Funders won't be added explicitely in the record. -->
-	<xsl:template
-		match="oaf:result//rel[./to/@class='isProducedBy']">
-		<xsl:for-each select="./funding/funding_level_0">
-			<xsl:variable name="funder"
-				select="../funder/@shortname" />
-			<xsl:variable name="fundingProgramme" select="@name" />
-			<xsl:variable name="jurisdiction"
-				select="../funder/@jurisdiction" />
-			<xsl:variable name="title" select="../../title" />
-			<xsl:variable name="acronym" select="../../acronym" />
-			<xsl:variable name="code" select="../../code" />
-			<dc:relation>
-				<xsl:value-of
-					select="concat('info:eu-repo/grantAgreement/', $funder, '/', $fundingProgramme, '/', $code, '/', $jurisdiction, '/' , $title, '/', $acronym)" />
-			</dc:relation>
-		</xsl:for-each>
-	</xsl:template>
+	
 
-	<xsl:template match="embargoenddate/text()">
-		<dc:date>
-			<xsl:value-of
-				select="concat('info:eu-repo/date/embargoEnd/', .)" />
-		</dc:date>
-	</xsl:template><!-- <xsl:template match="oaf:result/originalId/text()"> 
+	<!-- <xsl:template match="oaf:result/originalId/text()"> 
 		<dc:identifier> <xsl:value-of select="normalize-space(.)"/> </dc:identifier> 
 		</xsl:template> --><!-- Alternative Identifier (R), idType from pid@classid 
 		<dc:relation> info:eu-repo/semantics/altIdentifier/[idType]/[ID] </dc:relation> -->
@@ -158,12 +213,7 @@
 				select="concat('info:eu-repo/semantics/altIdentifier/', @classid, '/', ./text())" />
 		</dc:relation>
 	</xsl:template>
-	<xsl:template
-		match="oaf:children/oaf:instance/oaf:webresource/oaf:url/text()">
-		<dc:identifier>
-			<xsl:value-of select="." />
-		</dc:identifier>
-	</xsl:template><!--Referenced Publication (R), from extraInfo[@typology='citations']/citation, 
+	<!--Referenced Publication (R), from extraInfo[@typology='citations']/citation, 
 		idType from citation/id/@type, ID from citation/id/@value <dc:relation> info:eu-repo/semantics/reference/[idType]/[ID] 
 		</dc:relation> <dc:relation> info:eu-repo/semantics/reference/doi/10.1234/789.1 
 		</dc:relation> <dc:relation> info:eu-repo/semantics/reference/pmid/1234567 
@@ -199,34 +249,10 @@
 		If subject@classname != keywords, then we have a classification scheme to 
 		encode <dc:subject>info:eu-repo/classification/[scheme]/[value]</dc:subject> 
 		<dc:subject>info:eu-repo/classification/dcc/whatever</dc:subject> -->
-	<xsl:template
-		match="oaf:result/subject[@classname='keyword']">
-		<dc:subject>
-			<xsl:value-of select="normalize-space(./text())" />
-		</dc:subject>
-	</xsl:template>
-	<xsl:template
-		match="oaf:result/subject[not(@classname='keyword') and @classid != '']">
-		<dc:subject>
-			<xsl:value-of
-				select="concat('info:eu-repo/classification/', @classid, '/', normalize-space(./text()))" />
-		</dc:subject>
-	</xsl:template><!--description (M w A) from description -->
-	<xsl:template match="oaf:result/description/text()">
-		<dc:description>
-			<xsl:value-of select="normalize-space(.)" />
-		</dc:description>
-	</xsl:template><!--publisher (M w A) from publisher -->
-	<xsl:template match="oaf:result/publisher/text()">
-		<dc:publisher>
-			<xsl:value-of select="normalize-space(.)" />
-		</dc:publisher>
-	</xsl:template><!-- Publication date (M) from dateofacceptance -->
-	<xsl:template match="oaf:result/dateofacceptance/text()">
-		<dc:date>
-			<xsl:value-of select="normalize-space(.)" />
-		</dc:date>
-	</xsl:template><!-- Publication type (M) where [type] is /instancetype[1]/classname 
+	<!--description (M w A) from description -->
+	<!--publisher (M w A) from publisher -->
+	<!-- Publication date (M) from dateofacceptance -->
+	<!-- Publication type (M) where [type] is /instancetype[1]/classname 
 		(dnet:publication_resource vocabulary). A second dc:type (uncontrolled) can 
 		be used. <dc:type>info:eu-repo/semantics/[type]</dc:type> -->
 	<xsl:template
@@ -256,26 +282,13 @@
 		<xsl:value-of select="./@classname"/> </dc:type> </xsl:template> --><!-- Format (R), in theory from format, not sure we are filling 
 		it <dc:format>mediaType of the digital manifestation of the resource</dc:format> 
 		<dc:format>application/pdf</dc:format> -->
-	<xsl:template match="oaf:result/format/text()">
-		<dc:format>
-			<xsl:value-of select="normalize-space(.)" />
-		</dc:format>
-	</xsl:template><!-- source (R) from source -->
-	<xsl:template match="oaf:result/source/text()">
-		<dc:source>
-			<xsl:value-of select="normalize-space(.)" />
-		</dc:source>
-	</xsl:template>
+	
 	<xsl:template match="oaf:result/collectedfrom">
 		<dc:source>
 			<xsl:value-of select="normalize-space(@name)" />
 		</dc:source>
 	</xsl:template><!-- Language (R) from language@classid -->
-	<xsl:template match="oaf:result/language">
-		<dc:language>
-			<xsl:value-of select="./@classid" />
-		</dc:language>
-	</xsl:template><!-- Override default template -->
+	<!-- Override default template -->
 	<xsl:template match="text()|@*" /><!-- =========================================================================== --><!-- === Convert camel case 
 		text to cameCaseText === --><!-- === Modified from http://blog.inventic.eu/2013/08/xslt-snippet-to-convert-string-from-hyphens-to-camelcase/ 
 		=== --><!-- === (c) Inventic s.r.o. 
