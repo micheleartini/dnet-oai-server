@@ -1,13 +1,13 @@
 package eu.dnetlib.apps.oai.utils;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
 public class GzipUtils {
@@ -15,36 +15,26 @@ public class GzipUtils {
 	public static byte[] compress(final String str) {
 		if (StringUtils.isBlank(str)) { return null; }
 
-		try {
-			final ByteArrayOutputStream obj = new ByteArrayOutputStream();
-			final GZIPOutputStream gzip = new GZIPOutputStream(obj);
-			gzip.write(str.getBytes("UTF-8"));
-			gzip.flush();
-			gzip.close();
-			return obj.toByteArray();
+		try (final ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+			try (final GZIPOutputStream gzip = new GZIPOutputStream(baos)) {
+				IOUtils.write(str.getBytes(Charset.defaultCharset()), gzip);
+			}
+			return baos.toByteArray();
 		} catch (final IOException e) {
 			throw new RuntimeException("error in gzip", e);
 		}
 	}
 
 	public static String decompress(final byte[] compressed) {
-		final StringBuilder outStr = new StringBuilder();
 		if (compressed == null || compressed.length == 0) { return null; }
-		try {
-			if (isCompressed(compressed)) {
-				final GZIPInputStream gis = new GZIPInputStream(new ByteArrayInputStream(compressed));
-				final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(gis, "UTF-8"));
-
-				String line;
-				while ((line = bufferedReader.readLine()) != null) {
-					outStr.append(line);
-				}
-			} else {
-				outStr.append(compressed);
+		if (isCompressed(compressed)) {
+			try (final GZIPInputStream gis = new GZIPInputStream(new ByteArrayInputStream(compressed))) {
+				return IOUtils.toString(gis, Charset.defaultCharset());
+			} catch (final IOException e) {
+				throw new RuntimeException("error in gunzip", e);
 			}
-			return outStr.toString();
-		} catch (final IOException e) {
-			throw new RuntimeException("error in gunzip", e);
+		} else {
+			return new String(compressed);
 		}
 	}
 

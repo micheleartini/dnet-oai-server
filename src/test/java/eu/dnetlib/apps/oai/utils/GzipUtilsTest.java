@@ -5,6 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
+import java.nio.charset.Charset;
+
+import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -21,6 +25,18 @@ public class GzipUtilsTest {
 		assertNotNull(bytes);
 		assertTrue(bytes.length > 0);
 
+		assertEquals(message, GzipUtils.decompress(bytes));
+	}
+
+	@Test
+	final void testCompressAndDecompress_2() throws IOException {
+		final String message = IOUtils.toString(getClass().getResourceAsStream("/eu/dnetlib/apps/oai/record01.xml"), Charset.defaultCharset());
+
+		final byte[] bytes = GzipUtils.compress(message);
+		assertNotNull(bytes);
+		assertTrue(bytes.length > 0);
+
+		assertTrue(bytes.length <= message.getBytes().length);
 		assertEquals(message, GzipUtils.decompress(bytes));
 	}
 
