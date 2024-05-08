@@ -122,6 +122,33 @@
 				<legalname>Dublin City University</legalname>
 				<legalshortname>DCU</legalshortname>
 			</rel>
+			<rel inferred="true" trust="0.72" inferenceprovenance="iis::document_referencedProjects" provenanceaction="iis">
+                            <to class="isProducedBy" scheme="dnet:result_project_relations" type="project">sfi_________::46209ef695bc8c8fdc43e2b59192478e</to>
+                            <title>Patterned nanomaterial’s using ferroelectric lithography for enhanced optical imaging</title>
+                            <code>12/IP/1556</code>
+                            <funding>
+                                <funder id="sfi_________::SFI" shortname="SFI" name="Science Foundation Ireland" jurisdiction="IE" />
+                                <funding_level_0 name="SFI Investigator Programme">sfi_________::SFI::SFI Investigator Programme</funding_level_0>
+                            </funding>
+                            <funding>
+                                <funder id="sfi_________::SFI" shortname="SFI" name="Science Foundation Ireland" jurisdiction="IE" />
+                                <funding_level_0 name="SFI Investigator Programme">sfi_________::SFI::SFI Investigator Programme</funding_level_0>
+                                <funding_level_1 name="Investigator Project">sfi_________::SFI::SFI Investigator Programme::Investigator Project</funding_level_1>
+                            </funding>
+                        </rel>
+                        <rel inferred="true" trust="0.897" inferenceprovenance="iis::document_referencedProjects" provenanceaction="iis">
+                            <validated date="2020-09-10" />
+                            <to class="isProducedBy" scheme="dnet:result_project_relations" type="project">corda__h2020::4d4df762f68791b57b787938a49ef451</to>
+                            <code>644175</code>
+                            <funding>
+                                <funder id="ec__________::EC" shortname="EC" name="European Commission" jurisdiction="EU" />
+                                <funding_level_0 name="H2020">ec__________::EC::H2020</funding_level_0>
+                                <funding_level_1 name="MSCA-RISE">ec__________::EC::H2020::MSCA-RISE</funding_level_1>
+                            </funding>
+                            <contracttype classid="MSCA-RISE" classname="RISE" schemeid="ec:h2020toas" schemename="Horizon 2020 - Type of Actions" />
+                            <acronym>MATRIXASSAY</acronym>
+                            <title>Novel Cell Migration Assay Based on Microtissue Technology and Tissue-Specific Matrices</title>
+                        </rel>
 		</rels>
 		<children>
 			<result
