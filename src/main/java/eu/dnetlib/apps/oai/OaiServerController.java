@@ -8,6 +8,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -31,8 +34,6 @@ import eu.dnetlib.apps.oai.domain.OaiSet;
 import eu.dnetlib.apps.oai.domain.OaiVerb;
 import eu.dnetlib.apps.oai.domain.ResumptionToken;
 import eu.dnetlib.apps.oai.utils.DateUtils;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
 @Controller
 public class OaiServerController {
@@ -73,15 +74,22 @@ public class OaiServerController {
 
 		final String verb = params.remove("verb");
 
-		return switch (OaiVerb.validate(verb)) {
-		case IDENTIFY -> oaiIdentify(params);
-		case LIST_METADATA_FORMATS -> oaiListMetadataFormats(params);
-		case LIST_SETS -> oaiListSets(params);
-		case GET_RECORD -> oaiGetRecord(params);
-		case LIST_IDENTIFIERS -> oaiListIdentifiers(params);
-		case LIST_RECORDS -> oaiListRecords(params);
-		default -> prepareErrorResponseXml(OaiError.badVerb);
-		};
+		switch (OaiVerb.validate(verb)) {
+		case IDENTIFY:
+			return oaiIdentify(params);
+		case LIST_METADATA_FORMATS:
+			return oaiListMetadataFormats(params);
+		case LIST_SETS:
+			return oaiListSets(params);
+		case GET_RECORD:
+			return oaiGetRecord(params);
+		case LIST_IDENTIFIERS:
+			return oaiListIdentifiers(params);
+		case LIST_RECORDS:
+			return oaiListRecords(params);
+		default:
+			return prepareErrorResponseXml(OaiError.badVerb);
+		}
 	}
 
 	private String oaiIdentify(final Map<String, String> params) {
