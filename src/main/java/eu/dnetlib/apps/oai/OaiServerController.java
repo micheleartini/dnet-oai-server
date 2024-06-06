@@ -288,6 +288,11 @@ public class OaiServerController {
 
 		final Document doc = DocumentHelper.createDocument();
 
+		final Map<String, String> xsltAttrs = new HashMap<>();
+		xsltAttrs.put("type", "text/xsl");
+		xsltAttrs.put("href", "oai/oaitohtml.xsl");
+		doc.addProcessingInstruction("xml-stylesheet", xsltAttrs);
+
 		final Element root = doc.addElement("OAI-PMH", "http://www.openarchives.org/OAI/2.0/");
 
 		root.addAttribute(new QName("schemaLocation", new Namespace("xsi",
